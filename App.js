@@ -13,7 +13,7 @@ import {
 import { cloneElement, useState } from "react";
 
 const Stack = createNativeStackNavigator();
-const uri = "https://643d-193-1-57-1.eu.ngrok.io";
+const uri = "http://54.209.183.235:5000";
 export default App = () => {
   return (
     <NavigationContainer>
