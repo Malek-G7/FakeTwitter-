@@ -3,15 +3,14 @@ const mongoose = require("mongoose")
 const session = require('express-session');
 const passport = require('passport');
 const cors = require("cors")
+const userRouter = require("./routes/userRoute")
 const app = express()
 const cookieParser = require("cookie-parser")
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
-const dotenv = require("dotenv")
-dotenv.config()
 
 mongoose.connect(
-    process.env.DB_URI,
+    "mongodb+srv://WavesUsername:<password>@waves.fewat9e.mongodb.net/?retryWrites=true&w=majority",
     {
         useNewUrlParser: true
     }
@@ -57,6 +56,8 @@ app.get("/",(req,res) => {
     res.send("hello world")
    
 })
+
+app.use("/user",userRouter)
 
 app.listen(5000,'0.0.0.0', () => {
     console.log("server started on port 5000 !")
