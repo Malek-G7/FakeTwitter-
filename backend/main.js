@@ -10,7 +10,7 @@ app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
 mongoose.connect(
-    "mongodb+srv://WavesUsername:<password>@waves.fewat9e.mongodb.net/?retryWrites=true&w=majority",
+    "mongodb+srv://WavesUsername:WavesPassword@waves.fewat9e.mongodb.net/?retryWrites=true&w=majority",
     {
         useNewUrlParser: true
     }

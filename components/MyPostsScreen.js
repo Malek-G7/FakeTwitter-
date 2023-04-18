@@ -18,6 +18,7 @@ const HomeScreen = ({ navigation }) => {
     name: "",
     price: "",
   });
+  const uri = "http://54.209.183.235:5000";
 
   return (
     <ScrollView contentContainerStyle={styles.outer}>
@@ -88,10 +89,11 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: "skyblue",
-    marginTop: 30,
+    marginTop: 20,
+    marginBottom: 20,
     height: 40,
     width: 200,
-    borderWidth: 4,
+    borderWidth: 1,
     justifyContent: "center",
   },
   TextInput: {
@@ -105,36 +107,9 @@ const styles = StyleSheet.create({
   Text: {
     textAlign: "center",
   },
-  title: {
-    color: "black",
-    fontWeight: "bold",
-    fontSize: 40,
-    textAlign: "center",
-  },
-  search: {
+  add: {
     borderWidth: 1,
     backgroundColor: "white",
-    marginTop: 50,
     alignItems: "center",
-  },
-  add: {
-    backgroundColor: "white",
-    alignItems: "center",
-  },
-  proPage: {
-    marginTop: 100,
-    marginBottom: 150,
-    alignItems: "center",
-  },
-  productDetails: {
-    alignItems: "center",
-    marginBottom: 100,
-  },
-  productText: {
-    fontWeight: "bold",
-    fontSize: 30,
-  },
-  productTextInput: {
-    alignItems: "center",
-  },
+  }
 });

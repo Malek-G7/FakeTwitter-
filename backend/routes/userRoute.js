@@ -36,6 +36,6 @@ router.get("/getAllUsers", async (req, res, next) => {
     console.log(error);
     res.sendStatus(400);
   }
-});
+}); 
 
 module.exports = router;
