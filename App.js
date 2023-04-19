@@ -1,5 +1,7 @@
 // import * as React from 'react';
 import { NavigationContainer } from "@react-navigation/native";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import {
   StyleSheet,
@@ -11,158 +13,90 @@ import {
   TextInput,
 } from "react-native";
 import { cloneElement, useState } from "react";
+import HomeScreen from "./components/HomeScreen";
+import SignUpScreen from "./components/SignUpScreen";
+import SignInScreen from "./components/SignInScreen";
+import SearchScreen from "./components/SearchScreen";
+import MyPostsScreen from "./components/MyPostsScreen";
 
 const Stack = createNativeStackNavigator();
+const LoginTab = createBottomTabNavigator();
+const HomeTab = createMaterialTopTabNavigator();
+const FYPStack = createNativeStackNavigator();
+
 const uri = "http://54.209.183.235:5000";
+const isSignedIn = true;
+
+function HomeTabScreen() {
+  return (
+    <HomeTab.Navigator screenOptions={{ headerShown: false }}>
+      <HomeTab.Screen name="Home" component={HomeScreen} />
+      <HomeTab.Screen name="Search" component={SearchScreen} />
+      <HomeTab.Screen name="MyPosts" component={MyPostsScreen} />
+    </HomeTab.Navigator>
+  );
+}
+
+function LoginTabScreen() {
+  return (
+    <LoginTab.Navigator screenOptions={{ headerShown: false }}>
+      <LoginTab.Screen name="SignIn" component={SignInScreen} />
+      <LoginTab.Screen name="SignUp" component={SignUpScreen} />
+    </LoginTab.Navigator>
+  );
+}
+
+function FYPStackScreen() {
+  return (
+    <FYPStack.Navigator screenOptions={{ headerShown: false }}>
+      <FYPStack.Screen name="HomeScreen" component={HomeScreen} />
+      <FYPStack.Screen name="Product" component={Product} />
+      <FYPStack.Screen name="AllProducts" component={AllProducts} />
+    </FYPStack.Navigator>
+  );
+}
+
 export default App = () => {
   return (
-    <NavigationContainer>
+    <NavigationContainer screenOptions={{ headerShown: false }}>
       <Stack.Navigator>
-        <Stack.Screen
-          name="Home"
-          component={HomeScreen}
-          options={{ title: "Welcome" }}
-        />
-        <Stack.Screen name="Product" component={Product} />
-        <Stack.Screen name="AllProducts" component={AllProducts} />
+        {isSignedIn ? (
+        <>
+          <Stack.Screen name="Waves" component={HomeTabScreen} />
+        </>
+        ) : (
+        <>
+          <Stack.Screen name="Login" component={LoginTabScreen} />
+        </>
+        )}
       </Stack.Navigator>
     </NavigationContainer>
   );
 };
 
-const HomeScreen = ({ navigation }) => {
-  const [text, setText] = useState("");
-  const [newProduct, setNewProduct] = useState({
-    name: "",
-    price: "",
-  });
-
-  return (
-    <ScrollView style={styles.main}>
-      <View style={styles.container}>
-        <Text style={styles.title}>Shopsy</Text>
-        <View style={styles.search}>
-          <Text style={styles.text}>Search for a product</Text>
-          <TextInput
-            style={styles.TextInput}
-            placeholder="Type product name here !"
-            onChangeText={(newText) => setText(newText)}
-          />
-          <Pressable
-            style={styles.button}
-            onPress={async () => {
-              let data;
-              try {
-                const res = await fetch(`${uri}/getSpecificProduct`, {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                    "ngrok-skip-browser-warning": "69420", // See: https://stackoverflow.com/questions/73017353/how-to-bypass-ngrok-browser-warning
-                  },
-                  body: JSON.stringify({ productName: text }), // Need to use POST to send body
-                });
-                data = await res.json();
-                navigation.navigate("Product", {
-                  productName: data.name,
-                  productPrice: data.price,
-                });
-              } catch (err) {
-                console.log(err);
-              }
-            }}
-          >
-            <Text style={styles.Text}>Search for a product</Text>
-          </Pressable>
-        </View>
-        {/* //============================================================================================================================================================ */}
-
-        <View style={styles.add}>
-          <Text style={styles.text}>Add new product here !</Text>
-          <TextInput
-            style={styles.TextInput}
-            placeholder="Type new product name here !"
-            onChangeText={(newName) => {
-              setNewProduct({ ...newProduct, name: newName });
-            }}
-          />
-          <TextInput
-            style={styles.TextInput}
-            placeholder="Type new product price here !"
-            onChangeText={(newPrice) => {
-              setNewProduct({ ...newProduct, price: newPrice });
-            }}
-          />
-          <Pressable
-            style={styles.button}
-            onPress={async () => {
-              let data;
-              try {
-                const res = await fetch(`${uri}/addProduct`, {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                    "ngrok-skip-browser-warning": "69420", // See: https://stackoverflow.com/questions/73017353/how-to-bypass-ngrok-browser-warning
-                  },
-                  body: JSON.stringify({
-                    productName: newProduct.name,
-                    productPrice: newProduct.price,
-                  }), // Need to use POST to send body
-                });
-                data = await res.json();
-              } catch (err) {
-                console.log(err);
-              }
-              // navigation.navigate('product', {product : data })
-            }}
-          ><Text style={styles.Text}>Add new product</Text></Pressable>
-        </View>
-        {/* //============================================================================================================================================================ */}
-        <View style={styles.proPage}>
-          <Text style={styles.text}>Go to all Products page</Text>
-          <Pressable
-            style={styles.button}
-            onPress={async () => {
-              try {
-                const res = await fetch(`${uri}/getAllProducts`, {
-                  method: "GET",
-                  headers: {
-                    "Content-Type": "application/json",
-                    "ngrok-skip-browser-warning": "69420", // See: https://stackoverflow.com/questions/73017353/how-to-bypass-ngrok-browser-warning
-                  },
-                });
-                const data = await res.json();
-                console.log(data);
-                navigation.navigate("AllProducts", { products: data });
-              } catch (err) {
-                console.log(err);
-              }
-            }}
-          ><Text style={styles.Text}>Display all products</Text></Pressable>
-        </View>
-      </View>
-    </ScrollView>
-  );
-};
-//============================================================================================================================================================
 const Product = ({ navigation, route }) => {
   const [newPrice, setNewPrice] = useState("");
 
   return (
     <ScrollView>
-      <View style = {styles.productDetails}>
-      <Text style = {styles.productText}>product name : {route.params.productName}</Text>
-      <Text  style = {styles.productText}>product price : {route.params.productPrice}</Text>
+      <View style={styles.productDetails}>
+        <Text style={styles.productText}>
+          product name : {route.params.productName}
+        </Text>
+        <Text style={styles.productText}>
+          product price : {route.params.productPrice}
+        </Text>
       </View>
-      <View style = {styles.productTextInput}>
-      <TextInput
-        style={{ height: 40 }}
-        placeholder="Type new product price here !"
-        onChangeText={(Price) => {
-          setNewPrice(Price);
-        }}
-      />
+      <View style={styles.productTextInput}>
+        <TextInput
+          style={{ height: 40 }}
+          placeholder="Type new product price here !"
+          onChangeText={(Price) => {
+            setNewPrice(Price);
+          }}
+        />
       </View>
-     
+
       <Button
         title="update product price"
         onPress={async () => {
@@ -215,7 +149,7 @@ const AllProducts = ({ navigation, route }) => {
       {route.params.products.map((product, key) => {
         return (
           <View key={key}>
-            <Text style = {styles.productText}>
+            <Text style={styles.productText}>
               {product.name} : {product.price}
             </Text>
             <Text>-----------------</Text>
@@ -238,7 +172,7 @@ const styles = StyleSheet.create({
     fontSize: 30,
   },
   button: {
-    backgroundColor: 'skyblue',
+    backgroundColor: "skyblue",
     marginTop: 30,
     height: 40,
     width: 200,
@@ -254,9 +188,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   Text: {
-    
     textAlign: "center",
-
   },
   title: {
     color: "black",
@@ -280,21 +212,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 
-  proPage:{
+  proPage: {
     marginTop: 100,
     marginBottom: 150,
     alignItems: "center",
   },
-  productDetails : {
+  productDetails: {
     alignItems: "center",
     marginBottom: 100,
-
   },
-  productText : {
+  productText: {
     fontWeight: "bold",
     fontSize: 30,
   },
-  productTextInput : {
+  productTextInput: {
     alignItems: "center",
-  }
+  },
 });
