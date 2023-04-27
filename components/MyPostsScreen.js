@@ -14,29 +14,37 @@ import { cloneElement, useState } from "react";
 
 const HomeScreen = ({ navigation }) => {
   const [text, setText] = useState("");
-  const [newProduct, setNewProduct] = useState({
-    name: "",
-    price: "",
+  const [newPost, setNewPost] = useState({
+    email: "",
+    content: "",
+    likes: "",
   });
-  const uri = "http://54.209.183.235:5000";
+  const uri = "https://5189-193-1-57-1.ngrok-free.app";
 
   return (
     <ScrollView contentContainerStyle={styles.outer}>
       <View style={styles.container}>
         <View style={styles.add}>
-          <Text style={styles.text}>Add a post!</Text>
+          <Text style={styles.text}>Add a post!</Text>          
           <TextInput
             style={styles.TextInput}
             placeholder="Give it a title!"
-            onChangeText={(newName) => {
-              setNewProduct({ ...newProduct, name: newName });
+            onChangeText={(newEmail) => {
+              setNewPost({ ...newPost, email: newEmail });
+            }}
+          />
+          <TextInput
+            style={styles.TextInput}
+            placeholder="Give it a title!"
+            onChangeText={(newContent) => {
+              setNewPost({ ...newPost, content: newContent });
             }}
           />
           <TextInput
             style={styles.TextInput}
             placeholder="Start typing!"
-            onChangeText={(newPrice) => {
-              setNewProduct({ ...newProduct, price: newPrice });
+            onChangeText={(newlikes) => {
+              setNewPost({ ...newPost, likes: newlikes });
             }}
           />
           <Pressable
@@ -44,18 +52,20 @@ const HomeScreen = ({ navigation }) => {
             onPress={async () => {
               let data;
               try {
-                const res = await fetch(`${uri}/addProduct`, {
+                const res = await fetch(`${uri}/addPost`, {
                   method: "POST",
                   headers: {
                     "Content-Type": "application/json",
                     "ngrok-skip-browser-warning": "69420", // See: https://stackoverflow.com/questions/73017353/how-to-bypass-ngrok-browser-warning
                   },
                   body: JSON.stringify({
-                    productName: newProduct.name,
-                    productPrice: newProduct.price,
+                    email: newPost.email,
+                    content: newPost.content,
+                    likes: newPost.likes,
                   }), // Need to use POST to send body
                 });
                 data = await res.json();
+                console.log("1: ", + data);
               } catch (err) {
                 console.log(err);
               }

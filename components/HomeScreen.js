@@ -1,6 +1,7 @@
 // import * as React from 'react';
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { Card, Icon, Image } from "@rneui/themed";
 import {
   StyleSheet,
   Button,
@@ -10,42 +11,46 @@ import {
   View,
   TextInput,
 } from "react-native";
-import { cloneElement, useState } from "react";
+import { cloneElement, useState, useEffect } from "react";
 
 const HomeScreen = ({ navigation }) => {
   const [text, setText] = useState("");
-  const [newProduct, setNewProduct] = useState({
-    name: "",
-    price: "",
-  });
+  const [allUsers, setAllUsers] = useState([]);
+  const [posts, setPosts] = useState([]);
   const uri = "http://54.209.183.235:5000";
+
+  useEffect(() => {
+    const fetch = async () => {
+      try {
+        const res = await fetch(
+          `https://5189-193-1-57-1.ngrok-free.app/getAllPosts`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "ngrok-skip-browser-warning": "69420",
+            },
+          }
+        );
+        const data = await res.json();
+        setAllUsers(data);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    fetch();
+  }, []);
 
   return (
     <ScrollView contentContainerStyle={styles.outer}>
       <View style={styles.container}>
         <View style={styles.proPage}>
-          <Text style={styles.text}>Browse posts</Text>
-          <Pressable
-            style={styles.button}
-            onPress={async () => {
-              try {
-                const res = await fetch(`${uri}/getAllUsers`, {
-                  method: "GET",
-                  headers: {
-                    "Content-Type": "application/json",
-                    "ngrok-skip-browser-warning": "69420", 
-                  },
-                });
-                const data = await res.json();
-                console.log(data);
-                navigation.navigate("AllProducts", { products: data });
-              } catch (err) {
-                console.log(err);
-              }
-            }}
-          >
-            <Text style={styles.Text}>View all</Text>
-          </Pressable>
+          <Text style={styles.Text}>View all posts</Text>
+          <View>
+            {allUsers.map((user, index) => (
+              <Text key={index}>{user.email}</Text>
+            ))}
+          </View>
         </View>
       </View>
     </ScrollView>
@@ -99,5 +104,5 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     marginBottom: 150,
     alignItems: "center",
-  }
+  },
 });

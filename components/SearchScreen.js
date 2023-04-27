@@ -26,20 +26,19 @@ const HomeScreen = ({ navigation }) => {
     <ScrollView contentContainerStyle={styles.outer}>
       <View style={styles.container}>
         <View style={styles.search}>
-          <TextInput
-            style={styles.TextInput}
-            onChangeText={(newText) => setText(newText)}
-          />
-          <Button
-            icon={<Icon
+          <View style={styles.row}>
+            <TextInput
+              style={styles.TextInput}
+              onChangeText={(newText) => setText(newText)}
+            />
+            <Icon
               color="#0CC"
               name="search"
-              size={20}
+              onPress={() => console.log("onPress()")}
+              size={40}
               type="font-awesome5"
-            />}
-            title="?"
-          />
-          
+            />
+          </View>
           <Pressable
             style={styles.button}
             onPress={async () => {
@@ -108,8 +107,14 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   search: {
+    flex: .5,
     borderWidth: 1,
     backgroundColor: "white",
     alignItems: "center",
+  },
+  row: {
+    flex: 1,
+    flexDirection: "row",
+    padding: 10,
   },
 });
