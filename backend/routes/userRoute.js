@@ -31,22 +31,73 @@ router.post("/signup", async (req, res, next) => {
 });
 
 router.post("/addPost", async (req, res, next) => {
-  const user = await Post.find();
-  const post = { content: req.body.content, likes: req.body.likes };
-  console.log("Test");
-  const response = await Post.findByIdAndUpdate(
-    user[0]._id,
-    { "$addToSet": { "posts": post } },
-    { "new": true, "upsert": true }
-  );
-  console.log(response);
-  res.sendStatus(200);
+  try {
+    const post = new Post({
+      username: req.body.username,
+      content : req.body.content,
+      likes: "0",
+      image: req.body.image ? req.body.image : "" 
+    });
+    const newPost = await post.save();
+    res.status(201).json(newPost);
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(400);
+  }
 });
 
 router.get("/getAllPosts", async (req, res, next) => {
   try {
-    allPosts = await Post.find();
+    const allPosts = await Post.find();
     res.json(allPosts);
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(400);
+  }
+});
+
+router.patch("/likePost", async (req, res, next) => {
+  try {
+    const likePost = await Post.findOneAndUpdate({ _id: req.body._id },
+      {$inc : {'likes' : 1}},
+      {new:true , upsert : true})
+    res.json({ message: "success" });
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(400);
+  }
+});
+
+router.patch("/unlikePost", async (req, res, next) => {
+  try {
+    const likePost = await Post.findOneAndUpdate({ _id: req.body._id },
+      {$inc : {'likes' : -1}},
+      {new:true , upsert : true})
+    res.json({ message: "success" });
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(400);
+  }
+});
+
+router.patch("/editPost", async (req, res, next) => {
+  try {
+    const editPost = await Post.findOneAndUpdate(
+      { _id: req.body._id }, 
+      { content: req.body.content },
+      { new: true } 
+    );
+    res.json({ message: "success" });
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(400);
+  }
+});
+
+router.post("/deletePost", async (req, res, next) => {
+  try {
+    const deletePost = await Post.findOneAndDelete({ _id: req.body._id })
+    res.json({ message: "success" });
   } catch (error) {
     console.log(error);
     res.sendStatus(400);
