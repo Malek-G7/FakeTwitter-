@@ -1,93 +1,125 @@
 // import * as React from 'react';
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import {
-  StyleSheet,
-  Button,
-  ScrollView,
-  Pressable,
-  Text,
-  View,
-  TextInput,
-} from "react-native";
-import { cloneElement, useState } from "react";
+import { Text, Card, Button, Icon, Image } from "@rneui/themed";
+import { StyleSheet, ScrollView, View, TextInput } from "react-native";
+import { cloneElement, useState, useEffect } from "react";
 
 const HomeScreen = ({ navigation }) => {
   const [text, setText] = useState("");
-  const [newProduct, setNewProduct] = useState({
-    name: "",
-    price: "",
-  });
+  const [allUsers, setAllUsers] = useState([]);
+  const [posts, setPosts] = useState([]);
+  const uri = "https://ddf5-193-1-57-1.ngrok-free.app";
+
+  const callAPIGetAll = async () => {
+    try {
+      const res = await fetch(
+        `https://ddf5-193-1-57-1.ngrok-free.app/getAllPosts`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "69420",
+          },
+        }
+      );
+      const data = await res.json();
+      console.log(data);
+      setAllUsers(data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const callAPILike = async (id) => {
+    let data;
+    try {
+      const res = await fetch(
+        `https://ddf5-193-1-57-1.ngrok-free.app/likePost`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "69420", // See: https://stackoverflow.com/questions/73017353/how-to-bypass-ngrok-browser-warning
+          },
+          body: JSON.stringify({
+            _id: id,
+          }),
+        }
+      );
+      data = await res.json();
+      console.log("like: ", +data);
+      callAPIGetAll()
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const callAPIUnlike = async (id) => {
+    let data;
+    try {
+      const res = await fetch(
+        `https://ddf5-193-1-57-1.ngrok-free.app/unlikePost`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "69420", // See: https://stackoverflow.com/questions/73017353/how-to-bypass-ngrok-browser-warning
+          },
+          body: JSON.stringify({
+            _id: id,
+          }),
+        }
+      );
+      data = await res.json();
+      console.log("like: ", +data);
+      callAPIGetAll()
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   return (
-    <ScrollView contentContainerStyle={styles.outer}>
+    <ScrollView style={styles.outer}>
       <View style={styles.container}>
-        <View style={styles.add}>
-          <Text style={styles.text}>Add a post!</Text>
-          <TextInput
-            style={styles.TextInput}
-            placeholder="Give it a title!"
-            onChangeText={(newName) => {
-              setNewProduct({ ...newProduct, name: newName });
-            }}
-          />
-          <TextInput
-            style={styles.TextInput}
-            placeholder="Start typing!"
-            onChangeText={(newPrice) => {
-              setNewProduct({ ...newProduct, price: newPrice });
-            }}
-          />
-          <Pressable
-            style={styles.button}
-            onPress={async () => {
-              let data;
-              try {
-                const res = await fetch(`${uri}/addProduct`, {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                    "ngrok-skip-browser-warning": "69420", // See: https://stackoverflow.com/questions/73017353/how-to-bypass-ngrok-browser-warning
-                  },
-                  body: JSON.stringify({
-                    productName: newProduct.name,
-                    productPrice: newProduct.price,
-                  }), // Need to use POST to send body
-                });
-                data = await res.json();
-              } catch (err) {
-                console.log(err);
-              }
-              // navigation.navigate('product', {product : data })
-            }}
-          >
-            <Text style={styles.Text}>Add post</Text>
-          </Pressable>
-        </View>
-        {/* //============================================================================================================================================================ */}
         <View style={styles.proPage}>
-          <Text style={styles.text}>Browse posts</Text>
-          <Pressable
-            style={styles.button}
-            onPress={async () => {
-              try {
-                const res = await fetch(`${uri}/getAllProducts`, {
-                  method: "GET",
-                  headers: {
-                    "Content-Type": "application/json",
-                    "ngrok-skip-browser-warning": "69420", // See: https://stackoverflow.com/questions/73017353/how-to-bypass-ngrok-browser-warning
-                  },
-                });
-                const data = await res.json();
-                console.log(data);
-                navigation.navigate("AllProducts", { products: data });
-              } catch (err) {
-                console.log(err);
-              }
-            }}
-          >
-            <Text style={styles.Text}>View all</Text>
-          </Pressable>
+          <View>
+            {allUsers.map((user, index) => (
+              <Card key={index}>
+                <Card.Title style={{ textAlign: "left" }}>
+                  {user.username}
+                </Card.Title>
+                <Card.Divider />
+                <Text style={{ marginBottom: 10 }}>{user.content}</Text>
+                <View
+                  style={{ flexDirection: "row", flexDirection: "row-reverse" }}
+                >
+                  <Icon
+                    color="#0CC"
+                    name="thumb-down-off-alt"
+                    onPress={async () => callAPIUnlike(user._id)}
+                    size={40}
+                    type="material"
+                  />
+                  <Icon
+                    color="#0CC"
+                    name="thumb-up-off-alt"
+                    onPress={async () => callAPILike(user._id)}
+                    size={40}
+                    type="material"
+                  />
+                  <Text style={{ margin: 10 }}>{user.likes}</Text>
+                </View>
+              </Card>
+            ))}
+          </View>
+          <Icon
+            color="#0CC"
+            name="rotate-right"
+            onPress={async () => callAPIGetAll()}
+            size={40}
+            type="font-awesome5"
+          />
         </View>
       </View>
     </ScrollView>
@@ -98,12 +130,13 @@ export default HomeScreen;
 
 const styles = StyleSheet.create({
   outer: {
-    flex: 1,
+    minHeight: "100%",
   },
   container: {
     flex: 1,
     borderWidth: 10,
     padding: 10,
+    minHeight: "100%",
   },
   text: {
     color: "black",
@@ -112,9 +145,7 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: "skyblue",
-    marginTop: 30,
-    height: 40,
-    width: 200,
+    padding: 10,
     borderWidth: 4,
     justifyContent: "center",
   },
@@ -136,35 +167,10 @@ const styles = StyleSheet.create({
 
     textAlign: "center",
   },
-
-  search: {
+  proPage: {
     borderWidth: 1,
     backgroundColor: "white",
-    marginTop: 50,
-    alignItems: "center",
-  },
-
-  add: {
-    backgroundColor: "white",
-    marginTop: 100,
-
-    alignItems: "center",
-  },
-
-  proPage: {
-    marginTop: 100,
     marginBottom: 150,
-    alignItems: "center",
-  },
-  productDetails: {
-    alignItems: "center",
-    marginBottom: 100,
-  },
-  productText: {
-    fontWeight: "bold",
-    fontSize: 30,
-  },
-  productTextInput: {
     alignItems: "center",
   },
 });

@@ -15,6 +15,7 @@ import { cloneElement, useState } from "react";
 const HomeScreen = ({ navigation }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const uri = "http://54.209.183.235:5000";
 
   const callAPIUpdate = async () => {
     try {

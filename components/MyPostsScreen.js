@@ -14,10 +14,34 @@ import { cloneElement, useState } from "react";
 
 const HomeScreen = ({ navigation }) => {
   const [text, setText] = useState("");
-  const [newProduct, setNewProduct] = useState({
-    name: "",
-    price: "",
+  const [newPost, setNewPost] = useState({
+    username: "",
+    content: "",
+    likes: "",
   });
+  const uri = "https://ddf5-193-1-57-1.ngrok-free.app";
+
+  const callAPIAdd = async () => {
+    let data;
+    try {
+      const res = await fetch(`${uri}/addPost`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "69420", // See: https://stackoverflow.com/questions/73017353/how-to-bypass-ngrok-browser-warning
+        },
+        body: JSON.stringify({
+          username: newPost.username,
+          content: newPost.content,
+          image: newPost.imageURI,
+        }), // Need to use POST to send body
+      });
+      data = await res.json();
+      console.log("1: ", + data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.outer}>
@@ -26,43 +50,23 @@ const HomeScreen = ({ navigation }) => {
           <Text style={styles.text}>Add a post!</Text>
           <TextInput
             style={styles.TextInput}
-            placeholder="Give it a title!"
-            onChangeText={(newName) => {
-              setNewProduct({ ...newProduct, name: newName });
+            placeholder="Username!"
+            onChangeText={(newUsername) => {
+              setNewPost({ ...newPost, username: newUsername });
             }}
           />
           <TextInput
             style={styles.TextInput}
-            placeholder="Start typing!"
-            onChangeText={(newPrice) => {
-              setNewProduct({ ...newProduct, price: newPrice });
+            placeholder="Content!"
+            onChangeText={(newContent) => {
+              setNewPost({ ...newPost, content: newContent });
             }}
           />
-          <Pressable
-            style={styles.button}
-            onPress={async () => {
-              let data;
-              try {
-                const res = await fetch(`${uri}/addProduct`, {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                    "ngrok-skip-browser-warning": "69420", // See: https://stackoverflow.com/questions/73017353/how-to-bypass-ngrok-browser-warning
-                  },
-                  body: JSON.stringify({
-                    productName: newProduct.name,
-                    productPrice: newProduct.price,
-                  }), // Need to use POST to send body
-                });
-                data = await res.json();
-              } catch (err) {
-                console.log(err);
-              }
-              // navigation.navigate('product', {product : data })
-            }}
-          >
-            <Text style={styles.Text}>Add post</Text>
-          </Pressable>
+          <Button
+            color="#333"
+            title="Post"
+            onPress={async () => callAPIAdd()}
+          />
         </View>
       </View>
     </ScrollView>
@@ -88,10 +92,11 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: "skyblue",
-    marginTop: 30,
+    marginTop: 20,
+    marginBottom: 20,
     height: 40,
     width: 200,
-    borderWidth: 4,
+    borderWidth: 1,
     justifyContent: "center",
   },
   TextInput: {
@@ -105,36 +110,9 @@ const styles = StyleSheet.create({
   Text: {
     textAlign: "center",
   },
-  title: {
-    color: "black",
-    fontWeight: "bold",
-    fontSize: 40,
-    textAlign: "center",
-  },
-  search: {
+  add: {
     borderWidth: 1,
     backgroundColor: "white",
-    marginTop: 50,
-    alignItems: "center",
-  },
-  add: {
-    backgroundColor: "white",
-    alignItems: "center",
-  },
-  proPage: {
-    marginTop: 100,
-    marginBottom: 150,
-    alignItems: "center",
-  },
-  productDetails: {
-    alignItems: "center",
-    marginBottom: 100,
-  },
-  productText: {
-    fontWeight: "bold",
-    fontSize: 30,
-  },
-  productTextInput: {
     alignItems: "center",
   },
 });

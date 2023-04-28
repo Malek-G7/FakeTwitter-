@@ -11,6 +11,8 @@ import {
   TextInput,
 } from "react-native";
 import { cloneElement, useState } from "react";
+import * as React from "react";
+import { Icon } from "@rneui/base";
 
 const HomeScreen = ({ navigation }) => {
   const [text, setText] = useState("");
@@ -18,16 +20,25 @@ const HomeScreen = ({ navigation }) => {
     name: "",
     price: "",
   });
+  const uri = "https://ddf5-193-1-57-1.ngrok-free.app";
 
   return (
     <ScrollView contentContainerStyle={styles.outer}>
       <View style={styles.container}>
         <View style={styles.search}>
-          <Text style={styles.text}>Search for a post</Text>
-          <TextInput
-            style={styles.TextInput}
-            onChangeText={(newText) => setText(newText)}
-          />
+          <View style={styles.row}>
+            <TextInput
+              style={styles.TextInput}
+              onChangeText={(newText) => setText(newText)}
+            />
+            <Icon
+              color="#0CC"
+              name="search"
+              onPress={() => console.log("onPress()")}
+              size={40}
+              type="font-awesome5"
+            />
+          </View>
           <Pressable
             style={styles.button}
             onPress={async () => {
@@ -95,42 +106,15 @@ const styles = StyleSheet.create({
   Text: {
     textAlign: "center",
   },
-  title: {
-    color: "black",
-    fontWeight: "bold",
-    fontSize: 40,
-
-    textAlign: "center",
-  },
-
   search: {
+    flex: .5,
     borderWidth: 1,
     backgroundColor: "white",
-    marginTop: 50,
     alignItems: "center",
   },
-
-  add: {
-    backgroundColor: "white",
-    marginTop: 100,
-
-    alignItems: "center",
-  },
-
-  proPage: {
-    marginTop: 100,
-    marginBottom: 150,
-    alignItems: "center",
-  },
-  productDetails: {
-    alignItems: "center",
-    marginBottom: 100,
-  },
-  productText: {
-    fontWeight: "bold",
-    fontSize: 30,
-  },
-  productTextInput: {
-    alignItems: "center",
+  row: {
+    flex: 1,
+    flexDirection: "row",
+    padding: 10,
   },
 });

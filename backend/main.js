@@ -10,7 +10,7 @@ app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
 mongoose.connect(
-    "mongodb+srv://WavesUsername:<password>@waves.fewat9e.mongodb.net/?retryWrites=true&w=majority",
+    "mongodb+srv://WavesUsername:WavesPassword@waves.fewat9e.mongodb.net/?retryWrites=true&w=majority",
     {
         useNewUrlParser: true
     }
@@ -57,8 +57,8 @@ app.get("/",(req,res) => {
    
 })
 
-app.use("/user",userRouter)
+app.use("/",userRouter)
 
-app.listen(5000,'0.0.0.0', () => {
+app.listen(3000,'0.0.0.0', () => {
     console.log("server started on port 5000 !")
 })
