@@ -50,13 +50,14 @@ router.get("/getAllPosts", async (req, res, next) => {
   try {
     const allPosts = await Post.find();
     res.json(allPosts);
+    console.log(allPosts)
   } catch (error) {
     console.log(error);
     res.sendStatus(400);
   }
 });
 
-router.patch("/likePost", async (req, res, next) => {
+router.post("/likePost", async (req, res, next) => {
   try {
     const likePost = await Post.findOneAndUpdate({ _id: req.body._id },
       {$inc : {'likes' : 1}},
@@ -68,7 +69,7 @@ router.patch("/likePost", async (req, res, next) => {
   }
 });
 
-router.patch("/unlikePost", async (req, res, next) => {
+router.post("/unlikePost", async (req, res, next) => {
   try {
     const likePost = await Post.findOneAndUpdate({ _id: req.body._id },
       {$inc : {'likes' : -1}},

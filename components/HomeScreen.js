@@ -1,56 +1,125 @@
 // import * as React from 'react';
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { Card, Icon, Image } from "@rneui/themed";
-import {
-  StyleSheet,
-  Button,
-  ScrollView,
-  Pressable,
-  Text,
-  View,
-  TextInput,
-} from "react-native";
+import { Text, Card, Button, Icon, Image } from "@rneui/themed";
+import { StyleSheet, ScrollView, View, TextInput } from "react-native";
 import { cloneElement, useState, useEffect } from "react";
 
 const HomeScreen = ({ navigation }) => {
   const [text, setText] = useState("");
   const [allUsers, setAllUsers] = useState([]);
   const [posts, setPosts] = useState([]);
-  const uri = "http://54.209.183.235:5000";
+  const uri = "https://ddf5-193-1-57-1.ngrok-free.app";
 
-  useEffect(() => {
-    const fetch = async () => {
-      try {
-        const res = await fetch(
-          `https://5189-193-1-57-1.ngrok-free.app/getAllPosts`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              "ngrok-skip-browser-warning": "69420",
-            },
-          }
-        );
-        const data = await res.json();
-        setAllUsers(data);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    fetch();
-  }, []);
+  const callAPIGetAll = async () => {
+    try {
+      const res = await fetch(
+        `https://ddf5-193-1-57-1.ngrok-free.app/getAllPosts`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "69420",
+          },
+        }
+      );
+      const data = await res.json();
+      console.log(data);
+      setAllUsers(data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const callAPILike = async (id) => {
+    let data;
+    try {
+      const res = await fetch(
+        `https://ddf5-193-1-57-1.ngrok-free.app/likePost`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "69420", // See: https://stackoverflow.com/questions/73017353/how-to-bypass-ngrok-browser-warning
+          },
+          body: JSON.stringify({
+            _id: id,
+          }),
+        }
+      );
+      data = await res.json();
+      console.log("like: ", +data);
+      callAPIGetAll()
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const callAPIUnlike = async (id) => {
+    let data;
+    try {
+      const res = await fetch(
+        `https://ddf5-193-1-57-1.ngrok-free.app/unlikePost`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "69420", // See: https://stackoverflow.com/questions/73017353/how-to-bypass-ngrok-browser-warning
+          },
+          body: JSON.stringify({
+            _id: id,
+          }),
+        }
+      );
+      data = await res.json();
+      console.log("like: ", +data);
+      callAPIGetAll()
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   return (
-    <ScrollView contentContainerStyle={styles.outer}>
+    <ScrollView style={styles.outer}>
       <View style={styles.container}>
         <View style={styles.proPage}>
-          <Text style={styles.Text}>View all posts</Text>
           <View>
             {allUsers.map((user, index) => (
-              <Text key={index}>{user.email}</Text>
+              <Card key={index}>
+                <Card.Title style={{ textAlign: "left" }}>
+                  {user.username}
+                </Card.Title>
+                <Card.Divider />
+                <Text style={{ marginBottom: 10 }}>{user.content}</Text>
+                <View
+                  style={{ flexDirection: "row", flexDirection: "row-reverse" }}
+                >
+                  <Icon
+                    color="#0CC"
+                    name="thumb-down-off-alt"
+                    onPress={async () => callAPIUnlike(user._id)}
+                    size={40}
+                    type="material"
+                  />
+                  <Icon
+                    color="#0CC"
+                    name="thumb-up-off-alt"
+                    onPress={async () => callAPILike(user._id)}
+                    size={40}
+                    type="material"
+                  />
+                  <Text style={{ margin: 10 }}>{user.likes}</Text>
+                </View>
+              </Card>
             ))}
           </View>
+          <Icon
+            color="#0CC"
+            name="rotate-right"
+            onPress={async () => callAPIGetAll()}
+            size={40}
+            type="font-awesome5"
+          />
         </View>
       </View>
     </ScrollView>
@@ -61,12 +130,13 @@ export default HomeScreen;
 
 const styles = StyleSheet.create({
   outer: {
-    flex: 1,
+    minHeight: "100%",
   },
   container: {
     flex: 1,
     borderWidth: 10,
     padding: 10,
+    minHeight: "100%",
   },
   text: {
     color: "black",
@@ -75,9 +145,7 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: "skyblue",
-    marginTop: 30,
-    height: 40,
-    width: 200,
+    padding: 10,
     borderWidth: 4,
     justifyContent: "center",
   },

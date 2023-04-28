@@ -15,65 +15,58 @@ import { cloneElement, useState } from "react";
 const HomeScreen = ({ navigation }) => {
   const [text, setText] = useState("");
   const [newPost, setNewPost] = useState({
-    email: "",
+    username: "",
     content: "",
     likes: "",
   });
-  const uri = "https://5189-193-1-57-1.ngrok-free.app";
+  const uri = "https://ddf5-193-1-57-1.ngrok-free.app";
+
+  const callAPIAdd = async () => {
+    let data;
+    try {
+      const res = await fetch(`${uri}/addPost`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "69420", // See: https://stackoverflow.com/questions/73017353/how-to-bypass-ngrok-browser-warning
+        },
+        body: JSON.stringify({
+          username: newPost.username,
+          content: newPost.content,
+          image: newPost.imageURI,
+        }), // Need to use POST to send body
+      });
+      data = await res.json();
+      console.log("1: ", + data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.outer}>
       <View style={styles.container}>
         <View style={styles.add}>
-          <Text style={styles.text}>Add a post!</Text>          
+          <Text style={styles.text}>Add a post!</Text>
           <TextInput
             style={styles.TextInput}
-            placeholder="Give it a title!"
-            onChangeText={(newEmail) => {
-              setNewPost({ ...newPost, email: newEmail });
+            placeholder="Username!"
+            onChangeText={(newUsername) => {
+              setNewPost({ ...newPost, username: newUsername });
             }}
           />
           <TextInput
             style={styles.TextInput}
-            placeholder="Give it a title!"
+            placeholder="Content!"
             onChangeText={(newContent) => {
               setNewPost({ ...newPost, content: newContent });
             }}
           />
-          <TextInput
-            style={styles.TextInput}
-            placeholder="Start typing!"
-            onChangeText={(newlikes) => {
-              setNewPost({ ...newPost, likes: newlikes });
-            }}
+          <Button
+            color="#333"
+            title="Post"
+            onPress={async () => callAPIAdd()}
           />
-          <Pressable
-            style={styles.button}
-            onPress={async () => {
-              let data;
-              try {
-                const res = await fetch(`${uri}/addPost`, {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                    "ngrok-skip-browser-warning": "69420", // See: https://stackoverflow.com/questions/73017353/how-to-bypass-ngrok-browser-warning
-                  },
-                  body: JSON.stringify({
-                    email: newPost.email,
-                    content: newPost.content,
-                    likes: newPost.likes,
-                  }), // Need to use POST to send body
-                });
-                data = await res.json();
-                console.log("1: ", + data);
-              } catch (err) {
-                console.log(err);
-              }
-              // navigation.navigate('product', {product : data })
-            }}
-          >
-            <Text style={styles.Text}>Add post</Text>
-          </Pressable>
         </View>
       </View>
     </ScrollView>
@@ -121,5 +114,5 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     backgroundColor: "white",
     alignItems: "center",
-  }
+  },
 });

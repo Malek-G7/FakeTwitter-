@@ -20,7 +20,7 @@ const HomeScreen = ({ navigation }) => {
     name: "",
     price: "",
   });
-  const uri = "http://54.209.183.235:5000";
+  const uri = "https://ddf5-193-1-57-1.ngrok-free.app";
 
   return (
     <ScrollView contentContainerStyle={styles.outer}>
