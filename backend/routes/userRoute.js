@@ -9,6 +9,23 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const jwtString = process.env.JWT_STRING;
 dotenv.config();
+const { S3Client } = require("@aws-sdk/client-s3")
+const { PutObjectCommand ,GetObjectCommand, DeleteObjectCommand} = require("@aws-sdk/client-s3")
+const crypto = require("crypto")
+
+const bucketName = 'house-swiper'
+const bucketRegion = 'eu-west-1'
+const accessKey =  ''
+const secretAccessKey =  ''
+
+const s3 = new S3Client({
+    credentials:{
+        accessKeyId:accessKey,
+        secretAccessKey: secretAccessKey
+    },
+    region: bucketRegion 
+})
+
 
 router.use(
   express.urlencoded({ limit: "50mb", extended: true, parameterLimit: 50000 })
@@ -61,11 +78,25 @@ router.post("/signin", async (req, res, next) => {
 
 router.post("/addPost", async (req, res, next) => {
   try {
-    const post = new Post({
+    const randomImageName = (bytes = 32) => crypto.randomBytes(bytes).toString('hex')
+    const imageName = randomImageName()
+    const base64Image = req.body.image;
+    const buffer = Buffer.from(base64Image, 'base64');
+
+    const params = {
+      Bucket : bucketName,
+      Key: imageName,
+      Body : buffer,
+      ContentType: 'image/jpeg'
+  }
+  const command = new PutObjectCommand(params)
+  s3.send(command)
+
+  const post = new Post({
       username: req.body.username,
       content: req.body.content,
       likes: "0",
-      image: req.body.image ? req.body.image : "",
+      image: imageName
     });
     const newPost = await post.save();
     res.status(201).json(newPost);

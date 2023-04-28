@@ -1,12 +1,17 @@
 // import * as React from 'react';
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import * as ImagePicker from 'expo-image-picker';
+import * as Permissions from 'expo-permissions';
+import RNFS from 'react-native-fs';
+
 import {
   StyleSheet,
   Button,
   ScrollView,
   Pressable,
   Text,
+  Image,
   View,
   TextInput,
 } from "react-native";
@@ -19,11 +24,58 @@ const HomeScreen = ({ navigation }) => {
     content: "",
     likes: "",
   });
-  const uri = "https://088f-94-230-99-4.ngrok-free.app";
+  const [imageuri, setimageUri] = useState();
 
+  const uri = "https://e77f-193-1-57-1.ngrok-free.app";
+
+  const verifyPermissions = async () => {
+    const result = await Permissions.askAsync(
+      Permissions.CAMERA_ROLL,
+      Permissions.CAMERA
+    );
+    let succss = false;
+    if (result.status == "granted") succss = true;
+    if (result.permissions)
+      if (result.permissions.camera.status == "granted") succss = true;
+    console.log("result: " + JSON.stringify(result));
+    if (result.status !== "granted") {
+      Alert.alert(
+        "Insufficient permissions!",
+        "You need to grant camera permissions to use this app.",
+        [{ text: "OK" }]
+      );
+      return false;
+    }
+    return true;
+  };
+
+  const takeImageHandler = async () => {
+    const hasPermission = await verifyPermissions();
+    if (!hasPermission) {
+      return;
+    }
+    const image = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: [16, 9],
+      quality: 0.5,
+    });
+
+    setimageUri(image.assets[0].uri);
+  };
+
+const imageToBase64 = async (imagePath) => {
+  try {
+    const base64String = await RNFS.readFile(imagePath, 'base64');
+    return base64String;
+  } catch (error) {
+    console.log(error);
+  }
+};
+  
   const callAPIAdd = async () => {
-    let data;
     try {
+      const base64Image = await imageToBase64(imageuri)
+
       const res = await fetch(`${uri}/addPost`, {
         method: "POST",
         headers: {
@@ -33,11 +85,12 @@ const HomeScreen = ({ navigation }) => {
         body: JSON.stringify({
           username: newPost.username,
           content: newPost.content,
-          image: newPost.imageURI,
+          image : base64Image
+          
         }), // Need to use POST to send body
       });
-      data = await res.json();
-      console.log("1: ", + data);
+      const data = await res.json();
+      console.log(data);
     } catch (err) {
       console.log(err);
     }
@@ -62,6 +115,20 @@ const HomeScreen = ({ navigation }) => {
               setNewPost({ ...newPost, content: newContent });
             }}
           />
+          <Text>pick an image</Text>
+          <Button
+            style={styles.imagePicker}
+            title="Take Image"
+            color={"#444"}
+            onPress={takeImageHandler}
+          />
+          <View style={styles.imagePreview}>
+            {!imageuri ? (
+              <Text>No image picked yet.</Text>
+            ) : (
+              <Image style={styles.image} source={{ uri: imageuri }} />
+            )}
+          </View>
           <Button
             color="#333"
             title="Post"
@@ -115,4 +182,23 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     alignItems: "center",
   },
+  imagePicker: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+    height: '100%'
+  },
+  imagePreview: {
+    width: '100%',
+    height: 200,
+    marginBottom: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderColor: '#ccc',
+    borderWidth: 1
+  },
+  image: {
+    width: '100%',
+    height: '100%'
+  }
 });
