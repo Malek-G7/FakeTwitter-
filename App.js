@@ -24,7 +24,7 @@ const LoginTab = createBottomTabNavigator();
 const HomeTab = createMaterialTopTabNavigator();
 const FYPStack = createNativeStackNavigator();
 
-const uri = "https://e77f-193-1-57-1.ngrok-free.app";
+const uri = "https://e18a-2a02-8084-a5bd-3200-59fe-6a5b-7f9-7534.ngrok-free.app";
 const isSignedIn = true;
 
 function HomeTabScreen() {

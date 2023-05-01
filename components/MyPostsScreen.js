@@ -1,9 +1,14 @@
-// import * as React from 'react';
+import { useEffect } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import * as ImagePicker from 'expo-image-picker';
 import * as Permissions from 'expo-permissions';
-import RNFS from 'react-native-fs';
+const { S3Client } = require("@aws-sdk/client-s3")
+const { PutObjectCommand ,GetObjectCommand, DeleteObjectCommand} = require("@aws-sdk/client-s3")
+import 'react-native-url-polyfill/auto';
+import 'react-native-get-random-values';
+//import { v4 as uuidv4 } from 'uuid';
+
 
 import {
   StyleSheet,
@@ -25,8 +30,23 @@ const HomeScreen = ({ navigation }) => {
     likes: "",
   });
   const [imageuri, setimageUri] = useState();
+  const [image, setImage] = useState();
 
-  const uri = "https://e77f-193-1-57-1.ngrok-free.app";
+  const uri = "https://e18a-2a02-8084-a5bd-3200-59fe-6a5b-7f9-7534.ngrok-free.app";
+
+  const bucketName = 'house-swiper'
+  const bucketRegion = 'eu-west-1'
+  const accessKey =  ''
+  const secretAccessKey =  ''
+
+  
+  const s3 = new S3Client({
+      credentials:{
+          accessKeyId:accessKey,
+          secretAccessKey: secretAccessKey
+      },
+      region: bucketRegion 
+  })
 
   const verifyPermissions = async () => {
     const result = await Permissions.askAsync(
@@ -54,29 +74,37 @@ const HomeScreen = ({ navigation }) => {
     if (!hasPermission) {
       return;
     }
-    const image = await ImagePicker.launchCameraAsync({
+    const pickerResult = await ImagePicker.launchCameraAsync({
       allowsEditing: true,
       aspect: [16, 9],
       quality: 0.5,
     });
-
-    setimageUri(image.assets[0].uri);
+    const img = await fetchImageFromUri(pickerResult.assets[0].uri);
+    setImage(img)
+    setimageUri(pickerResult.assets[0].uri);
   };
+ 
 
-const imageToBase64 = async (imagePath) => {
-  try {
-    const base64String = await RNFS.readFile(imagePath, 'base64');
-    return base64String;
-  } catch (error) {
-    console.log(error);
-  }
+ const fetchImageFromUri = async (uri) => {
+  const response = await fetch(uri);
+  const blob = await response.blob();
+  return blob;
 };
-  
+
+function generateRandomImageName() {
+  const randomNumber = Math.floor(Math.random() * 100000);
+  return "image" + randomNumber.toString();
+}
+
+// Usage example: generate a random image name
+const imageName = generateRandomImageName();
+console.log(imageName);
+
   const callAPIAdd = async () => {
     try {
-      const base64Image = await imageToBase64(imageuri)
-
-      const res = await fetch(`${uri}/addPost`, {
+    //  const base64Image = await imageToBase64(imageuri)
+    const imageName = generateRandomImageName()
+    const res = await fetch(`${uri}/addPost`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -85,12 +113,19 @@ const imageToBase64 = async (imagePath) => {
         body: JSON.stringify({
           username: newPost.username,
           content: newPost.content,
-          image : base64Image
-          
+          image : imageName
         }), // Need to use POST to send body
       });
       const data = await res.json();
       console.log(data);
+      const params = {
+        Bucket : bucketName,
+        Key: imageName,
+        Body : image,
+        ContentType: 'image/jpeg'
+      }
+      const command = new PutObjectCommand(params)
+      s3.send(command)
     } catch (err) {
       console.log(err);
     }
@@ -140,7 +175,6 @@ const imageToBase64 = async (imagePath) => {
   );
 };
 
-export default HomeScreen;
 
 const styles = StyleSheet.create({
   outer: {
@@ -202,3 +236,5 @@ const styles = StyleSheet.create({
     height: '100%'
   }
 });
+export default HomeScreen;
+

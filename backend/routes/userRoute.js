@@ -12,7 +12,7 @@ dotenv.config();
 const { S3Client } = require("@aws-sdk/client-s3")
 const { PutObjectCommand ,GetObjectCommand, DeleteObjectCommand} = require("@aws-sdk/client-s3")
 const crypto = require("crypto")
-
+const {getSignedUrl} = require("@aws-sdk/s3-request-presigner")
 const bucketName = 'house-swiper'
 const bucketRegion = 'eu-west-1'
 const accessKey =  ''
@@ -78,25 +78,12 @@ router.post("/signin", async (req, res, next) => {
 
 router.post("/addPost", async (req, res, next) => {
   try {
-    const randomImageName = (bytes = 32) => crypto.randomBytes(bytes).toString('hex')
-    const imageName = randomImageName()
-    const base64Image = req.body.image;
-    const buffer = Buffer.from(base64Image, 'base64');
-
-    const params = {
-      Bucket : bucketName,
-      Key: imageName,
-      Body : buffer,
-      ContentType: 'image/jpeg'
-  }
-  const command = new PutObjectCommand(params)
-  s3.send(command)
 
   const post = new Post({
       username: req.body.username,
       content: req.body.content,
       likes: "0",
-      image: imageName
+      image: req.body.image
     });
     const newPost = await post.save();
     res.status(201).json(newPost);
@@ -109,6 +96,17 @@ router.post("/addPost", async (req, res, next) => {
 router.get("/getAllPosts", async (req, res, next) => {
   try {
     const allPosts = await Post.find();
+    for (post of allPosts){
+      if(post.image){
+        const getObjectParams = {
+            Bucket: bucketName,
+            Key : post.image
+        } 
+        const command = new GetObjectCommand(getObjectParams)
+        const url = await getSignedUrl(s3,command)
+        post.image = url
+    }
+    }
     res.json(allPosts);
     console.log(allPosts);
   } catch (error) {
