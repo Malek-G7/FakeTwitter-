@@ -4,11 +4,27 @@ const passport = require("passport");
 const Post = require("../schemas/posts");
 const User = require("../schemas/user");
 const dotenv = require("dotenv");
-const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const jwtString = process.env.JWT_STRING;
 dotenv.config();
+const { S3Client } = require("@aws-sdk/client-s3")
+const { PutObjectCommand ,GetObjectCommand, DeleteObjectCommand} = require("@aws-sdk/client-s3")
+const crypto = require("crypto")
+const {getSignedUrl} = require("@aws-sdk/s3-request-presigner")
+const bucketName = 'house-swiper'
+const bucketRegion = 'eu-west-1'
+const accessKey =  ''
+const secretAccessKey =  ''
+
+const s3 = new S3Client({
+    credentials:{
+        accessKeyId:accessKey,
+        secretAccessKey: secretAccessKey
+    },
+    region: bucketRegion 
+})
+
 
 router.use(
   express.urlencoded({ limit: "50mb", extended: true, parameterLimit: 50000 })
@@ -61,11 +77,12 @@ router.post("/signin", async (req, res, next) => {
 
 router.post("/addPost", async (req, res, next) => {
   try {
-    const post = new Post({
+
+  const post = new Post({
       username: req.body.username,
       content: req.body.content,
       likes: "0",
-      image: req.body.image ? req.body.image : "",
+      image: req.body.image
     });
     const newPost = await post.save();
     res.status(201).json(newPost);
@@ -78,6 +95,17 @@ router.post("/addPost", async (req, res, next) => {
 router.get("/getAllPosts", async (req, res, next) => {
   try {
     const allPosts = await Post.find();
+    for (post of allPosts){
+      if(post.image){
+        const getObjectParams = {
+            Bucket: bucketName,
+            Key : post.image
+        } 
+        const command = new GetObjectCommand(getObjectParams)
+        const url = await getSignedUrl(s3,command)
+        post.image = url
+    }
+    }
     res.json(allPosts);
     console.log(allPosts);
   } catch (error) {
