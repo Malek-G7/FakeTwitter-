@@ -4,7 +4,6 @@ const passport = require("passport");
 const Post = require("../schemas/posts");
 const User = require("../schemas/user");
 const dotenv = require("dotenv");
-const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const jwtString = process.env.JWT_STRING;
