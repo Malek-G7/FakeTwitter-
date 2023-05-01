@@ -46,12 +46,6 @@ app.use((req, res, next) => {
 });
 app.use(cookieParser("secretcode"))
 
-//require('./auth/passport');
-
-//app.use(passport.initialize());
-//app.use(passport.session());
-
-
 app.get("/",(req,res) => {
     res.send("hello world")
    

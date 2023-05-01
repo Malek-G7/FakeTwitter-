@@ -9,20 +9,17 @@ const HomeScreen = ({ navigation }) => {
   const [text, setText] = useState("");
   const [allUsers, setAllUsers] = useState([]);
   const [posts, setPosts] = useState([]);
-  const uri = "https://ddf5-193-1-57-1.ngrok-free.app";
+  const uri = "https://075b-94-230-99-4.ngrok-free.app";
 
   const callAPIGetAll = async () => {
     try {
-      const res = await fetch(
-        `https://ddf5-193-1-57-1.ngrok-free.app/getAllPosts`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "ngrok-skip-browser-warning": "69420",
-          },
-        }
-      );
+      const res = await fetch(`${uri}/getAllPosts`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "69420",
+        },
+      });
       const data = await res.json();
       console.log(data);
       setAllUsers(data);
@@ -34,22 +31,19 @@ const HomeScreen = ({ navigation }) => {
   const callAPILike = async (id) => {
     let data;
     try {
-      const res = await fetch(
-        `https://ddf5-193-1-57-1.ngrok-free.app/likePost`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "ngrok-skip-browser-warning": "69420", // See: https://stackoverflow.com/questions/73017353/how-to-bypass-ngrok-browser-warning
-          },
-          body: JSON.stringify({
-            _id: id,
-          }),
-        }
-      );
+      const res = await fetch(`${uri}/likePost`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "69420", // See: https://stackoverflow.com/questions/73017353/how-to-bypass-ngrok-browser-warning
+        },
+        body: JSON.stringify({
+          _id: id,
+        }),
+      });
       data = await res.json();
       console.log("like: ", +data);
-      callAPIGetAll()
+      callAPIGetAll();
     } catch (err) {
       console.log(err);
     }
@@ -58,22 +52,19 @@ const HomeScreen = ({ navigation }) => {
   const callAPIUnlike = async (id) => {
     let data;
     try {
-      const res = await fetch(
-        `https://ddf5-193-1-57-1.ngrok-free.app/unlikePost`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "ngrok-skip-browser-warning": "69420", // See: https://stackoverflow.com/questions/73017353/how-to-bypass-ngrok-browser-warning
-          },
-          body: JSON.stringify({
-            _id: id,
-          }),
-        }
-      );
+      const res = await fetch(`${uri}/unlikePost`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "69420", // See: https://stackoverflow.com/questions/73017353/how-to-bypass-ngrok-browser-warning
+        },
+        body: JSON.stringify({
+          _id: id,
+        }),
+      });
       data = await res.json();
       console.log("like: ", +data);
-      callAPIGetAll()
+      callAPIGetAll();
     } catch (err) {
       console.log(err);
     }

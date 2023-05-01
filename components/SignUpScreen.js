@@ -14,13 +14,30 @@ import { cloneElement, useState } from "react";
 
 const HomeScreen = ({ navigation }) => {
   const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const uri = "http://54.209.183.235:5000";
+  const [message, setMessage] = useState("");
+  const [newUser, setNewUser] = useState({
+    username: "",
+    password: "",
+  });
+  const uri = "https://075b-94-230-99-4.ngrok-free.app";
 
-  const callAuthenticate = async () => {
+  const callAPISignUp = async () => {
+    let data;
     try {
-      //find user in db
-      // set isSignedIn to true
+      const res = await fetch(`${uri}/signup`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "69420", // See: https://stackoverflow.com/questions/73017353/how-to-bypass-ngrok-browser-warning
+        },
+        body: JSON.stringify({
+          username: newUser.username,
+          password: newUser.password,
+        }), // Need to use POST to send body
+      });
+      data = await res.json();
+      console.log("1: ", + data);
+      navigation.navigate("Login", { screen: "SignIn", initial: false });
     } catch (err) {
       console.log(err);
     }
@@ -35,19 +52,22 @@ const HomeScreen = ({ navigation }) => {
           <TextInput
             style={styles.TextInput}
             placeholder="username"
-            onChangeText={(username) => setUsername(username)}
+            onChangeText={(newUsername) => {
+              setNewUser({ ...newUser, username: newUsername });
+            }}
           />
           <TextInput
             style={styles.TextInput}
             placeholder="password"
-            onChangeText={(password) => setPassword(password)}
+            onChangeText={(newPassword) => {
+              setNewUser({ ...newUser, password: newPassword });
+            }}
           />
-          <Pressable
-            style={styles.button}
-            onPress={async () => callAuthenticate()}
-          >
-            <Text style={styles.Text}>Login</Text>
-          </Pressable>
+          <Button
+            color="#0CC"
+            title="Sign up"
+            onPress={async () => callAPISignUp()}
+          />
         </View>
       </View>
     </ScrollView>

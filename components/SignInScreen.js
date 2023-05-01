@@ -15,17 +15,36 @@ import { cloneElement, useState } from "react";
 const HomeScreen = ({ navigation }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const uri = "http://54.209.183.235:5000";
+  const [isLoggedIn, setIsLoggedIn] = useState("");
+  const [newUser, setNewUser] = useState({
+    username: "",
+    password: "",
+  });
+  const uri = "https://075b-94-230-99-4.ngrok-free.app";
 
-  const callAPIUpdate = async () => {
+  const callAPISignIn = async () => {
     try {
-      //find user in db
-      //set isSignedIn to true
-      navigation.navigate("Waves", { screen: "HomeScreen", initial: false });
+      const res = await fetch(`${uri}/signin`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "69420",
+        },
+        body: JSON.stringify({
+          username: newUser.username,
+          password: newUser.password,
+        }),
+      });
+      const data = await res.json();
+      console.log("si: " + data);
+      setIsLoggedIn(data);
+      if(isLoggedIn){
+        navigation.navigate("Waves", { screen: "HomeScreen", initial: false });
+      }
     } catch (err) {
-      console.log(err)
+      console.log(err);
     }
-  }
+  };
 
   return (
     <ScrollView>
@@ -36,16 +55,22 @@ const HomeScreen = ({ navigation }) => {
           <TextInput
             style={styles.TextInput}
             placeholder="username"
-            onChangeText={(username) => setUsername(username)}
+            onChangeText={(newUsername) => {
+              setNewUser({ ...newUser, username: newUsername });
+            }}
           />
           <TextInput
             style={styles.TextInput}
             placeholder="password"
-            onChangeText={(password) => setPassword(password)}
+            onChangeText={(newPassword) => {
+              setNewUser({ ...newUser, password: newPassword });
+            }}
           />
-          <Pressable style={styles.button} onPress={async () => callAPIUpdate()} >
-            <Text style={styles.Text}>Login</Text>
-          </Pressable>
+          <Button
+            color="#0CC"
+            title="Sign in"
+            onPress={async () => callAPISignIn()}
+          />
         </View>
       </View>
     </ScrollView>

@@ -19,7 +19,7 @@ const HomeScreen = ({ navigation }) => {
     content: "",
     likes: "",
   });
-  const uri = "https://ddf5-193-1-57-1.ngrok-free.app";
+  const uri = "https://088f-94-230-99-4.ngrok-free.app";
 
   const callAPIAdd = async () => {
     let data;

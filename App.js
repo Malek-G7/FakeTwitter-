@@ -24,7 +24,7 @@ const LoginTab = createBottomTabNavigator();
 const HomeTab = createMaterialTopTabNavigator();
 const FYPStack = createNativeStackNavigator();
 
-const uri = "https://ddf5-193-1-57-1.ngrok-free.app";
+const uri = "https://075b-94-230-99-4.ngrok-free.app";
 const isSignedIn = true;
 
 function HomeTabScreen() {
@@ -46,29 +46,12 @@ function LoginTabScreen() {
   );
 }
 
-function FYPStackScreen() {
-  return (
-    <FYPStack.Navigator screenOptions={{ headerShown: false }}>
-      <FYPStack.Screen name="HomeScreen" component={HomeScreen} />
-      <FYPStack.Screen name="Product" component={Product} />
-      <FYPStack.Screen name="AllProducts" component={AllProducts} />
-    </FYPStack.Navigator>
-  );
-}
-
 export default App = () => {
   return (
     <NavigationContainer screenOptions={{ headerShown: false }}>
       <Stack.Navigator>
-        {isSignedIn ? (
-        <>
-          <Stack.Screen name="Waves" component={HomeTabScreen} />
-        </>
-        ) : (
-        <>
           <Stack.Screen name="Login" component={LoginTabScreen} />
-        </>
-        )}
+          <Stack.Screen name="Waves" component={HomeTabScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

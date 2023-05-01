@@ -2,7 +2,12 @@ const express = require("express");
 const router = express.Router();
 const passport = require("passport");
 const Post = require("../schemas/posts");
+const User = require("../schemas/user");
 const dotenv = require("dotenv");
+const crypto = require("crypto");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const jwtString = process.env.JWT_STRING;
 dotenv.config();
 
 router.use(
@@ -16,17 +21,41 @@ router.get("/test", (req, res, next) => {
 
 router.post("/signup", async (req, res, next) => {
   try {
-    const user = new Post({
-      username: req.body.username,
-      password: req.body.password,
-      age: req.body.age,
-      gender: req.body.gender,
-    });
-    const newUser = await user.save();
-    res.status(201).json(newUser);
+    const checkUser = await User.findOne({ email: req.query.email });
+    if (checkUser) {
+      res.send({ status: "fail", message: "user already exists !" });
+    } else {
+      hashedPassword = bcrypt.hashSync(
+        req.query.password + process.env.EXTRA_BCRYPT_STRING,
+        12
+      );
+      const user = new User({
+        username: req.body.username,
+        password: hashedPassword,
+      });
+      const newUser = await user.save();
+      res.status(201).json(newUser);
+    }
   } catch (error) {
     console.log(error);
     res.sendStatus(400);
+  }
+});
+
+router.post("/signin", async (req, res, next) => {
+  const user = await User.findOne({ email: req.query.email });
+  if (!user) {
+    res.status(201).json({ isLoggedIn: false });
+  } else {
+    const checkPass = bcrypt.compare(
+      req.query.password + process.env.EXTRA_BCRYPT_STRING,
+      user.password
+    );
+    if (!checkPass) {
+      res.status(201).json({ isLoggedIn: false });
+    } else {
+      res.status(201).json({ isLoggedIn: true });
+    }
   }
 });
 
@@ -34,9 +63,9 @@ router.post("/addPost", async (req, res, next) => {
   try {
     const post = new Post({
       username: req.body.username,
-      content : req.body.content,
+      content: req.body.content,
       likes: "0",
-      image: req.body.image ? req.body.image : "" 
+      image: req.body.image ? req.body.image : "",
     });
     const newPost = await post.save();
     res.status(201).json(newPost);
@@ -50,7 +79,29 @@ router.get("/getAllPosts", async (req, res, next) => {
   try {
     const allPosts = await Post.find();
     res.json(allPosts);
-    console.log(allPosts)
+    console.log(allPosts);
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(400);
+  }
+});
+
+router.post("/getSpecificPosts", async (req, res, next) => {
+  try {
+    const allPosts = await Post.find({username: req.body.username});
+    res.json(allPosts);
+    console.log(allPosts);
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(400);
+  }
+});
+
+router.get("/getAllUsers", async (req, res, next) => {
+  try {
+    const allUsers = await User.find();
+    res.json(allUsers);
+    console.log(allUsers);
   } catch (error) {
     console.log(error);
     res.sendStatus(400);
@@ -59,9 +110,11 @@ router.get("/getAllPosts", async (req, res, next) => {
 
 router.post("/likePost", async (req, res, next) => {
   try {
-    const likePost = await Post.findOneAndUpdate({ _id: req.body._id },
-      {$inc : {'likes' : 1}},
-      {new:true , upsert : true})
+    const likePost = await Post.findOneAndUpdate(
+      { _id: req.body._id },
+      { $inc: { likes: 1 } },
+      { new: true, upsert: true }
+    );
     res.json({ message: "success" });
   } catch (error) {
     console.log(error);
@@ -71,9 +124,11 @@ router.post("/likePost", async (req, res, next) => {
 
 router.post("/unlikePost", async (req, res, next) => {
   try {
-    const likePost = await Post.findOneAndUpdate({ _id: req.body._id },
-      {$inc : {'likes' : -1}},
-      {new:true , upsert : true})
+    const likePost = await Post.findOneAndUpdate(
+      { _id: req.body._id },
+      { $inc: { likes: -1 } },
+      { new: true, upsert: true }
+    );
     res.json({ message: "success" });
   } catch (error) {
     console.log(error);
@@ -84,9 +139,9 @@ router.post("/unlikePost", async (req, res, next) => {
 router.patch("/editPost", async (req, res, next) => {
   try {
     const editPost = await Post.findOneAndUpdate(
-      { _id: req.body._id }, 
+      { _id: req.body._id },
       { content: req.body.content },
-      { new: true } 
+      { new: true }
     );
     res.json({ message: "success" });
   } catch (error) {
@@ -97,7 +152,7 @@ router.patch("/editPost", async (req, res, next) => {
 
 router.post("/deletePost", async (req, res, next) => {
   try {
-    const deletePost = await Post.findOneAndDelete({ _id: req.body._id })
+    const deletePost = await Post.findOneAndDelete({ _id: req.body._id });
     res.json({ message: "success" });
   } catch (error) {
     console.log(error);

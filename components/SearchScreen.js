@@ -16,11 +16,29 @@ import { Icon } from "@rneui/base";
 
 const HomeScreen = ({ navigation }) => {
   const [text, setText] = useState("");
-  const [newProduct, setNewProduct] = useState({
-    name: "",
-    price: "",
-  });
-  const uri = "https://ddf5-193-1-57-1.ngrok-free.app";
+  const [allPosts, setAllPosts] = useState([]);
+
+  const uri = "https://075b-94-230-99-4.ngrok-free.app";
+
+  const callAPIGetAll = async () => {
+    try {
+      const res = await fetch(`${uri}/getSpecificPosts`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "69420",
+        },
+        body: JSON.stringify({
+          username: text,
+        }),
+      });
+      const data = await res.json();
+      console.log(data);
+      setAllPosts(data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.outer}>
@@ -34,36 +52,41 @@ const HomeScreen = ({ navigation }) => {
             <Icon
               color="#0CC"
               name="search"
-              onPress={() => console.log("onPress()")}
+              onPress={() => console.log(async () => callAPIGetAll())}
               size={40}
               type="font-awesome5"
             />
           </View>
-          <Pressable
-            style={styles.button}
-            onPress={async () => {
-              let data;
-              try {
-                const res = await fetch(`${uri}/getSpecificProduct`, {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                    "ngrok-skip-browser-warning": "69420", // See: https://stackoverflow.com/questions/73017353/how-to-bypass-ngrok-browser-warning
-                  },
-                  body: JSON.stringify({ productName: text }), // Need to use POST to send body
-                });
-                data = await res.json();
-                navigation.navigate("Product", {
-                  productName: data.name,
-                  productPrice: data.price,
-                });
-              } catch (err) {
-                console.log(err);
-              }
-            }}
-          >
-            <Text style={styles.Text}>Search</Text>
-          </Pressable>
+          <View>
+            {allPosts.map((post, index) => (
+              <Card key={index}>
+                <Card.Title style={{ textAlign: "left" }}>
+                  {post.username}
+                </Card.Title>
+                <Card.Divider />
+                <Text style={{ marginBottom: 10 }}>{post.content}</Text>
+                <View
+                  style={{ flexDirection: "row", flexDirection: "row-reverse" }}
+                >
+                  <Icon
+                    color="#0CC"
+                    name="thumb-down-off-alt"
+                    onPress={async () => callAPIUnlike(post._id)}
+                    size={40}
+                    type="material"
+                  />
+                  <Icon
+                    color="#0CC"
+                    name="thumb-up-off-alt"
+                    onPress={async () => callAPILike(post._id)}
+                    size={40}
+                    type="material"
+                  />
+                  <Text style={{ margin: 10 }}>{post.likes}</Text>
+                </View>
+              </Card>
+            ))}
+          </View>
         </View>
       </View>
     </ScrollView>
@@ -107,7 +130,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   search: {
-    flex: .5,
+    flex: 0.5,
     borderWidth: 1,
     backgroundColor: "white",
     alignItems: "center",
