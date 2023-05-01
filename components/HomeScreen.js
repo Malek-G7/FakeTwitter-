@@ -9,7 +9,7 @@ const HomeScreen = ({ navigation }) => {
   const [text, setText] = useState("");
   const [allUsers, setAllUsers] = useState([]);
   const [posts, setPosts] = useState([]);
-  const uri = "https://e18a-2a02-8084-a5bd-3200-59fe-6a5b-7f9-7534.ngrok-free.app";
+  const uri = "http://54.209.183.235:3000";
 
   const callAPIGetAll = async () => {
     try {

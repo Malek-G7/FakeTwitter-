@@ -20,7 +20,7 @@ const HomeScreen = ({ navigation }) => {
     username: "",
     password: "",
   });
-  const uri = "https://075b-94-230-99-4.ngrok-free.app";
+  const uri = "http://54.209.183.235:3000";
 
   const callAPISignIn = async () => {
     try {
